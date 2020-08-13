@@ -1,0 +1,4 @@
+Como separar o nome de usuario do arquivo passwd:
+
+awk -F : '{print $1} /etc/passwd
+
