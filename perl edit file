@@ -1,0 +1,135 @@
+
+43
+
+(This is the official perlfaq answer, minus any subsequent edits)
+
+The basic idea of inserting, changing, or deleting a line from a text file involves reading and printing the file to the point you want to make the change, making the change, then reading and printing the rest of the file. Perl doesn't provide random access to lines (especially since the record input separator, $/, is mutable), although modules such as Tie::File can fake it.
+
+A Perl program to do these tasks takes the basic form of opening a file, printing its lines, then closing the file:
+
+open my $in,  '<',  $file      or die "Can't read old file: $!";
+open my $out, '>', "$file.new" or die "Can't write new file: $!";
+
+while( <$in> )
+    {
+    print $out $_;
+    }
+
+close $out;
+
+Within that basic form, add the parts that you need to insert, change, or delete lines.
+
+To prepend lines to the beginning, print those lines before you enter the loop that prints the existing lines.
+
+open my $in,  '<',  $file      or die "Can't read old file: $!";
+open my $out, '>', "$file.new" or die "Can't write new file: $!";
+
+print $out "# Add this line to the top\n"; # <--- HERE'S THE MAGIC
+
+while( <$in> )
+    {
+    print $out $_;
+    }
+
+close $out;
+
+To change existing lines, insert the code to modify the lines inside the while loop. In this case, the code finds all lowercased versions of "perl" and uppercases them. The happens for every line, so be sure that you're supposed to do that on every line!
+
+open my $in,  '<',  $file      or die "Can't read old file: $!";
+open my $out, '>', "$file.new" or die "Can't write new file: $!";
+
+print $out "# Add this line to the top\n";
+
+while( <$in> )
+    {
+    s/\b(perl)\b/Perl/g;
+    print $out $_;
+    }
+
+close $out;
+
+To change only a particular line, the input line number, $., is useful. First read and print the lines up to the one you want to change. Next, read the single line you want to change, change it, and print it. After that, read the rest of the lines and print those:
+
+while( <$in> )   # print the lines before the change
+    {
+    print $out $_;
+    last if $. == 4; # line number before change
+    }
+
+my $line = <$in>;
+$line =~ s/\b(perl)\b/Perl/g;
+print $out $line;
+
+while( <$in> )   # print the rest of the lines
+    {
+    print $out $_;
+    }
+
+To skip lines, use the looping controls. The next in this example skips comment lines, and the last stops all processing once it encounters either __END__ or __DATA__.
+
+while( <$in> )
+    {
+    next if /^\s+#/;             # skip comment lines
+    last if /^__(END|DATA)__$/;  # stop at end of code marker
+    print $out $_;
+    }
+
+Do the same sort of thing to delete a particular line by using next to skip the lines you don't want to show up in the output. This example skips every fifth line:
+
+while( <$in> )
+    {
+    next unless $. % 5;
+    print $out $_;
+    }
+
+If, for some odd reason, you really want to see the whole file at once rather than processing line-by-line, you can slurp it in (as long as you can fit the whole thing in memory!):
+
+open my $in,  '<',  $file      or die "Can't read old file: $!"
+open my $out, '>', "$file.new" or die "Can't write new file: $!";
+
+my @lines = do { local $/; <$in> }; # slurp!
+
+    # do your magic here
+
+print $out @lines;
+
+Modules such as File::Slurp and Tie::File can help with that too. If you can, however, avoid reading the entire file at once. Perl won't give that memory back to the operating system until the process finishes.
+
+You can also use Perl one-liners to modify a file in-place. The following changes all 'Fred' to 'Barney' in inFile.txt, overwriting the file with the new contents. With the -p switch, Perl wraps a while loop around the code you specify with -e, and -i turns on in-place editing. The current line is in $_. With -p, Perl automatically prints the value of $_ at the end of the loop. See perlrun for more details.
+
+perl -pi -e 's/Fred/Barney/' inFile.txt
+
+To make a backup of inFile.txt, give -i a file extension to add:
+
+perl -pi.bak -e 's/Fred/Barney/' inFile.txt
+
+To change only the fifth line, you can add a test checking $., the input line number, then only perform the operation when the test passes:
+
+perl -pi -e 's/Fred/Barney/ if $. == 5' inFile.txt
+
+To add lines before a certain line, you can add a line (or lines!) before Perl prints $_:
+
+perl -pi -e 'print "Put before third line\n" if $. == 3' inFile.txt
+
+You can even add a line to the beginning of a file, since the current line prints at the end of the loop:
+
+perl -pi -e 'print "Put before first line\n" if $. == 1' inFile.txt
+
+To insert a line after one already in the file, use the -n switch. It's just like -p except that it doesn't print $_ at the end of the loop, so you have to do that yourself. In this case, print $_ first, then print the line that you want to add.
+
+perl -ni -e 'print; print "Put after fifth line\n" if $. == 5' inFile.txt
+
+To delete lines, only print the ones that you want.
+
+perl -ni -e 'print unless /d/' inFile.txt
+
+share improve this answer follow
+edited Mar 3 '19 at 20:41
+community wiki
+
+3 revs, 2 users 99%
+perlfaq
+
+    The perl -ni -e 'print unless /d/' inFile.txt did indeed work for deleting matching lines, but the perl -pi -e 'next unless /d/' inFile.txt did not. Nor did changing next unless to next if. This is with perl 5.10.0. Any idea what's happening? – Trebor Rude Oct 3 '14 at 0:19
+    @TreborRude, even perl -pi -e 'next'prints the file unchanged (rather than skipping all of the data) It's true that the print is last, but according to perlrun it's inside a continue block, and therefore executes no matter what (perldoc.perl.org/functions/continue.html). The next/unless variant is also not in the current perlfaq5 – Joshua Goldberg Mar 3 '19 at 20:34
+
