@@ -43,6 +43,10 @@ echo "2 Em quais diretórios tenho permissão de escrita? "
 echo  ""
 find / -type d -writable 2>/dev/null
 echo  ""
+echo "2.1 Em quais arquivos em /etc tenho permissão de escrita? "
+echo  ""
+find /etc/ -maxdepth 1 -perm /002 2>/dev/null
+echo  ""
 echo "3. Posso utilizar o sudo para alguma atividade privilegiada? "
 echo "Será solicidata a senha sua senha, se não souber pressione enter nas três vezes solicitadas"
 echo  ""
